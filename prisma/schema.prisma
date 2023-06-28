@@ -24,8 +24,8 @@ model User {
 model Wallet {
   id        String     @id @default(uuid())
   currency  String
-  value     Float
-  valueBase Float
+  value     Float      @default(0)
+  valueBase Float      @default(0)
   createdAt DateTime   @default(now())
   userId    String
   User      User       @relation(fields: userId, references: id, onDelete: Cascade)
