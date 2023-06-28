@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  role      EnumRoles @default(USER)
+  Wallets   Wallet[]
+}
+
+model Wallet {
+  id        String     @id @default(uuid())
+  currency  String
+  value     Float
+  valueBase Float
+  createdAt DateTime   @default(now())
+  userId    String
+  User      User       @relation(fields: userId, references: id, onDelete: Cascade)
+  Extract   Register[]
+  Currency  Currency[]
+}
+
+model Register {
+  id               String           @id @default(uuid())
+  valueDayPurchase Float
+  valueCurrent     Float
+  valueBase        Float
+  createdAt        DateTime         @default(now())
+  type             EnumTypeRegister
+  walletId         String
+  Wallet           Wallet           @relation(fields: walletId, references: id, onDelete: Cascade)
+}
+
+enum EnumTypeRegister {
+  PURCHASE
+  SALE
+}
+
+enum EnumRoles {
+  USER
+  ADMIN
+}
+
+model Currency {
+  id       String  @id @default(uuid())
+  name     String
+  iso4217  String
+  Wallet   Wallet? @relation(fields: [walletId], references: [id])
+  walletId String?
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  dead      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  deleteAt  DateTime @updatedAt
+}
