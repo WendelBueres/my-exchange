@@ -1,9 +1,6 @@
 import { EnumRoles } from '@prisma/client';
-import { Transform } from 'class-transformer';
 import {
   IsEmail,
-  IsEnum,
-  IsNotEmpty,
   IsOptional,
   IsString,
   IsStrongPassword,
