@@ -21,26 +21,26 @@ export class UsersModule implements NestModule {
     consumer.apply(authMiddleware, isAdminMiddleware).forRoutes({
       path: 'users/admin',
       method: RequestMethod.POST,
-    }),
-      consumer.apply(authMiddleware, isOwnerOrAdminMiddleware).forRoutes({
-        path: 'users',
-        method: RequestMethod.DELETE,
-      }),
-      consumer.apply(authMiddleware, isOwnerOrAdminMiddleware).forRoutes({
-        path: 'users/:id',
-        method: RequestMethod.DELETE,
-      }),
-      consumer.apply(authMiddleware, hasPermissionForUpdate).forRoutes({
-        path: 'users',
-        method: RequestMethod.PATCH,
-      }),
-      consumer.apply(authMiddleware, hasPermissionForUpdate).forRoutes({
-        path: 'users/:id',
-        method: RequestMethod.PATCH,
-      }),
-      consumer.apply(authMiddleware, isOwnerMiddleware).forRoutes({
-        path: 'users/:id',
-        method: RequestMethod.GET,
-      });
+    });
+    consumer.apply(authMiddleware, isOwnerOrAdminMiddleware).forRoutes({
+      path: 'users',
+      method: RequestMethod.DELETE,
+    });
+    consumer.apply(authMiddleware, isOwnerOrAdminMiddleware).forRoutes({
+      path: 'users/:id',
+      method: RequestMethod.DELETE,
+    });
+    consumer.apply(authMiddleware, hasPermissionForUpdate).forRoutes({
+      path: 'users',
+      method: RequestMethod.PATCH,
+    });
+    consumer.apply(authMiddleware, hasPermissionForUpdate).forRoutes({
+      path: 'users/:id',
+      method: RequestMethod.PATCH,
+    });
+    consumer.apply(authMiddleware, isOwnerMiddleware).forRoutes({
+      path: 'users/:id',
+      method: RequestMethod.GET,
+    });
   }
 }
