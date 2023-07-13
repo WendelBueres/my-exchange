@@ -9,6 +9,8 @@ export class CurrencyController {
 
   @Post()
   create(@Body() createCurrencyDto: CreateCurrencyDto) {
+    createCurrencyDto.iso4217 = createCurrencyDto.iso4217.toUpperCase();
+
     return this.currencyService.create(createCurrencyDto);
   }
 
@@ -19,6 +21,10 @@ export class CurrencyController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCurrencyDto: UpdateCurrencyDto) {
+    if (updateCurrencyDto.iso4217) {
+      updateCurrencyDto.iso4217 = updateCurrencyDto.iso4217.toUpperCase();
+    }
+
     return this.currencyService.update(id, updateCurrencyDto);
   }
 
