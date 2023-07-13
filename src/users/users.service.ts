@@ -87,6 +87,16 @@ export class UsersService {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
+    if (updateUserDto.email) {
+      const emailExists = await this.prisma.user.findUnique({
+        where: { email: updateUserDto.email },
+      });
+
+      if (emailExists) {
+        throw new AppError('email already is registered', 400);
+      }
+    }
+
     const user = await this.prisma.user.update({
       where: { id: id },
       data: updateUserDto,
