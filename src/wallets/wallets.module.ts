@@ -23,13 +23,13 @@ export class WalletsModule implements NestModule {
       path: 'wallets',
       method: RequestMethod.GET,
     });
-    consumer.apply(authMiddleware, isOwnerMiddleware).forRoutes({
+    consumer.apply(authMiddleware).forRoutes({
+      path: 'wallets/:id',
+      method: RequestMethod.GET,
+    });
+    consumer.apply(authMiddleware).forRoutes({
       path: 'wallets/:id',
       method: RequestMethod.DELETE,
-    });
-    consumer.apply(authMiddleware, isOwnerMiddleware).forRoutes({
-      path: 'wallets/:id',
-      method: RequestMethod.PATCH,
     });
   }
 }
