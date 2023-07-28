@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Wallet" ALTER COLUMN "value" SET DEFAULT 0,
+ALTER COLUMN "valueBase" SET DEFAULT 0;
