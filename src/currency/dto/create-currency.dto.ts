@@ -19,7 +19,6 @@ enum EnumCurrency {
   'RUB' = 'RUB',
   'TRY' = 'TRY',
   'AUD' = 'AUD',
-  'BRL' = 'BRL',
   'CAD' = 'CAD',
   'CNY' = 'CNY',
   'HKD' = 'HKD',
