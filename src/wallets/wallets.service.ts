@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CreateWalletDto } from './dto/create-wallet.dto';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient, User } from '@prisma/client';
 import { AppError } from 'src/errors';
+import refreshValuesWallet from 'src/utils/refreshValuesWallet.utils';
+import api from 'src/services/api';
+import checkWallet from 'src/utils/checkWallet.utils';
 
 @Injectable()
 export class WalletsService {
@@ -69,11 +72,19 @@ export class WalletsService {
         throw new AppError('Wallet already exists', 400);
       }
 
-      return await this.prisma.wallet.create({
+      let consult = `${currency.iso4217}-BRL`;
+      const responseApi = await api.get(`/${consult}`);
+      consult = consult.replace('-', '');
+
+      const value = responseApi.data[consult].bid;
+
+      const wallet = await this.prisma.wallet.create({
         data: {
           currency: currency.name,
           value: createWalletDto.value,
           valueBase: createWalletDto.valueBase,
+          exchangeOfDay: parseFloat(value),
+          lastUpdateExchange: new Date(Date.now()),
           User: {
             connect: {
               id: userId,
@@ -86,34 +97,59 @@ export class WalletsService {
           },
         },
       });
+
+      return wallet;
     }
 
     throw new AppError('Currency or iso4217 is required');
   }
 
   async findAll(userId: string) {
-    //TODO: Atualizar valores de moedas antes de retornar carteiras.
+    try {
+      const wallets = await this.prisma.wallet.findMany({
+        where: { userId: userId },
+      });
 
-    return await this.prisma.wallet.findMany({
-      where: { userId: userId },
-    });
+      const refreshWallets = [];
+
+      wallets.forEach(async (wallet) => {
+        const walletRefresh = await refreshValuesWallet(wallet);
+
+        refreshWallets.push(walletRefresh);
+      });
+    } catch (error) {
+      throw new AppError('Error to refresh wallets', 500);
+    } finally {
+      const wallets = await this.prisma.wallet.findMany({
+        where: { userId: userId },
+      });
+
+      return wallets.sort((a, b) => {
+        if (a.currency > b.currency) {
+          return 1;
+        }
+        if (a.currency < b.currency) {
+          return -1;
+        }
+        return 0;
+      });
+    }
   }
 
-  async findOne(id: string) {
-    //TODO: Atualizar valores de moedas antes de retornar carteira.
+  async findOne(id: string, user: User) {
+    let wallet = await this.prisma.wallet.findUnique({
+      where: { id: id },
+    });
 
-    const wallet = await this.prisma.wallet.findUnique({
+    checkWallet(wallet, user);
+    await refreshValuesWallet(wallet);
+
+    return await this.prisma.wallet.findUnique({
       where: { id: id },
       include: {
         Extract: true,
       },
     });
-
-    if (!wallet) {
-      throw new AppError('Wallet not found', 404);
-    }
-
-    return wallet;
   }
 
   //Tratamento de erro manual, utilizando condicional if
