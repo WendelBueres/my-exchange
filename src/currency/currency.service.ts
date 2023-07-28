@@ -50,6 +50,9 @@ export class CurrencyService {
   async update(id: string, updateCurrencyDto: UpdateCurrencyDto) {
     const currency = await this.prisma.currency.findUnique({
       where: { id: id },
+      include: {
+        Wallet: true,
+      },
     });
 
     if (!currency) {
@@ -84,6 +87,15 @@ export class CurrencyService {
         throw new AppError('name already is registered', 400);
       }
     }
+
+    currency.Wallet.forEach(async (wallet) => {
+      await this.prisma.wallet.update({
+        where: { id: wallet.id },
+        data: {
+          currency: updateCurrencyDto.name,
+        },
+      });
+    });
 
     return await this.prisma.currency.update({
       where: { id: id },
